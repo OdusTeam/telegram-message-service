@@ -8,7 +8,7 @@ import (
 
 func Listen(ctx context.Context, cfg *Config, handler http.Handler) error {
 	server := http.Server{
-		Addr:        cfg.HttpAddr,
+		Addr:        cfg.HttpAddr + ":" + cfg.HttpPort,
 		Handler:     handler,
 		IdleTimeout: time.Duration(cfg.HttpTimeout) * time.Second,
 	}

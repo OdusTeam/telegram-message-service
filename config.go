@@ -6,7 +6,8 @@ import (
 )
 
 type Config struct {
-	HttpAddr    string `env:"HTTP_ADDR" envDefault:"0.0.0.0:80"`
+	HttpAddr    string `env:"HTTP_ADDR" envDefault:"0.0.0.0"`
+	HttpPort	string `env:"PORT" envDefault:"80"`
 	HttpTimeout int    `env:"HTTP_TIMEOUT" envDefault:"5"`
 }
 
