@@ -22,7 +22,7 @@ func main() {
 		if err != nil {
 			return err
 		}
-		var service Service //FIXME: Replace
+		service := NewTelegramService()
 		transport := NewTransport(service)
 		return Listen(ctx, configs, transport.Routes())
 	})
