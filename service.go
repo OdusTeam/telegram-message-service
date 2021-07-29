@@ -44,5 +44,15 @@ func (s *TelegramService) SendPhoto(token string, chatId int64, fileUrl string) 
 }
 
 func (s *TelegramService) SendFile(token string, chatId int64, fileUrl string) error {
-	panic("implement me")
+	api, err := tgbotapi.NewBotAPI(token)
+	if err != nil {
+		return err
+	}
+
+	file := tgbotapi.FileURL(fileUrl)
+
+	msg := tgbotapi.NewDocument(chatId, file)
+
+	_, err = api.Send(msg)
+	return err
 }

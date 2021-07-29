@@ -27,6 +27,7 @@ func (t *Transport) Routes() http.Handler {
 	r.Use(middleware.SetHeader("Content-Type", "application/json"))
 	r.Post(`/send-message`, t.sendMessage)
 	r.Post(`/send-photo`, t.sendPhoto)
+	r.Post(`/send-file`, t.sendFile)
 
 	return r
 }
@@ -63,6 +64,29 @@ func (t *Transport) sendPhoto(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := t.service.SendPhoto(req.Token, req.ChatId, req.FileUrl); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := serviceResponse{
+		Ok:      true,
+		Message: "Message with a photo sent",
+	}
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (t *Transport) sendFile(w http.ResponseWriter, r *http.Request) {
+	var req sendFileRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := t.service.SendFile(req.Token, req.ChatId, req.FileUrl); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
