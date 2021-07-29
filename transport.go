@@ -26,6 +26,7 @@ func (t *Transport) Routes() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.SetHeader("Content-Type", "application/json"))
 	r.Post(`/send-message`, t.sendMessage)
+	r.Post(`/send-photo`, t.sendPhoto)
 
 	return r
 }
@@ -53,6 +54,29 @@ func (t *Transport) sendMessage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (t *Transport) sendPhoto(w http.ResponseWriter, r *http.Request) {
+	var req sendFileRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := t.service.SendPhoto(req.Token, req.ChatId, req.FileUrl); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := serviceResponse{
+		Ok:      true,
+		Message: "Message with a photo sent",
+	}
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 type serviceResponse struct {
 	Ok      bool   `json:"ok"`
 	Message string `json:"message"`
@@ -62,4 +86,10 @@ type sendMessageRequest struct {
 	ChatId  int64  `json:"chat_id"`
 	Token   string `json:"token"`
 	Message string `json:"message"`
+}
+
+type sendFileRequest struct {
+	ChatId  int64  `json:"chat_id"`
+	Token   string `json:"token"`
+	FileUrl string `json:"file_url"`
 }
