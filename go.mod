@@ -1,0 +1,1 @@
+module "Odus/telegram-message-service"
